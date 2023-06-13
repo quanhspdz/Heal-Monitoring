@@ -1,0 +1,3 @@
+# Heal-Monitoring
+Heart rate and SpO2 monitoring system
+- Hardware used: ESP8266, MAX30100, OLED, BUZZER...

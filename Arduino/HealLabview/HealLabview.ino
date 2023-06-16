@@ -21,6 +21,9 @@ PulseOximeter pox;
 char ssid[] = "Quang Anh";
 char pass[] = "12345678";
 
+char supSSID[] = "Ai đẹp trai nhất nhà";
+char supPASS[] = "quanganh";
+
 int port = 80;
 WiFiServer server(port);
 WiFiClient client;
@@ -74,6 +77,49 @@ void displayDataOLED(uint32_t heartRate, uint32_t spo2) {
    }
 }
 
+void connectToWiFiAndBlynk() {
+  Serial.print("Đang kết nối với ");
+  Serial.print(ssid);
+  WiFi.begin(ssid, pass);
+
+  int retries = 0;
+  while (WiFi.status() != WL_CONNECTED && retries < 5) {
+    delay(1000);
+    retries++;
+    Serial.print(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print("Kết nối thành công với ");
+    Serial.println(ssid);
+    Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+    return;
+  }
+
+  Serial.print("Không thể kết nối với ");
+  Serial.println(ssid);
+
+  Serial.print("Đang kết nối với ");
+  Serial.print(supSSID);
+  WiFi.begin(supSSID, supPASS);
+
+  retries = 0;
+  while (WiFi.status() != WL_CONNECTED && retries < 5) {
+    delay(1000);
+    retries++;
+    Serial.print(".");
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print("Kết nối thành công với ");
+    Serial.println(supSSID);
+    Blynk.begin(BLYNK_AUTH_TOKEN, supSSID, supPASS);
+  } else {
+    Serial.print("Không thể kết nối với ");
+    Serial.println(supSSID);
+  }
+}
+
 void setup(){
     Serial.begin(115200);
 
@@ -94,23 +140,12 @@ void setup(){
     delay(2000); 
     Serial.print("Initializing pulse oximeter..");
 
-    Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
-    //connect to wifi and start server
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, pass);
-  
-    Serial.println("Connecting to Wifi");
+    connectToWiFiAndBlynk();
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".....");
       delay(500);
     }
-
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(ssid);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
 
     server.begin();
     Serial.print("Open Telnet and connect to IP: ");
